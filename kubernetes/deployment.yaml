@@ -15,6 +15,6 @@ spec:
       containers:
       - name: python-app-container
         # The image path now starts with the new region
-        image: "asia-south1-docker.pkg.dev/your-gcp-project-id/my-python-app-repo/my-app:latest" # <-- MODIFIED
+        image: "asia-south1-docker.pkg.dev/application-deployment-471707/my-python-app-repo/my-app:latest" # <-- MODIFIED
         ports:
         - containerPort: 8080
