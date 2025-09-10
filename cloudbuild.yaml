@@ -1,9 +1,9 @@
 steps:
-# Step 1: Build the Docker image, tagging it with the short commit SHA
+# Step 1: Build the Docker image
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/my-python-app-repo/my-app:$SHORT_SHA', '.']
 
-# Step 2: Push the Docker image to Google Artifact Registry
+# Step 2: Push the Docker image
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/my-python-app-repo/my-app:$SHORT_SHA']
 
@@ -18,19 +18,18 @@ steps:
   - '--region'
   - 'asia-south1'
 
-# Step 4: Update the deployment to use the new Docker image
+# Step 4: Dynamically update the image tag in the deployment manifest
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  entrypoint: kubectl
+  entrypoint: 'bash'
   args:
-  - 'set'
-  - 'image'
-  - 'deployment/python-app-deployment'
-  - 'python-app-container=asia-south1-docker.pkg.dev/$PROJECT_ID/my-python-app-repo/my-app:$SHORT_SHA'
+  - '-c'
+  - |
+    sed -i "s|:latest|:$SHORT_SHA|g" kubernetes/deployment.yaml
 
-# Step 5: Apply the service manifest to ensure the service is configured
+# Step 5: Apply the updated manifests to the cluster
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: kubectl
-  args: ['apply', '-f', 'kubernetes/service.yaml']
+  args: ['apply', '-f', 'kubernetes/']
 
 # This section lists the images that will be built by this pipeline
 images:
