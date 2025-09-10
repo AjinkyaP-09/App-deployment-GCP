@@ -36,7 +36,5 @@ steps:
 images:
 - 'asia-south1-docker.pkg.dev/$PROJECT_ID/my-python-app-repo/my-app:$SHORT_SHA'
 
-# This option block fixes the logging error by specifying a GCS bucket
-options:
-  logging: GCS_ONLY
-  log_gcs_bucket: 'gs://application-deployment-471707-build-logs' # <-- CORRECTED
+# Top-level field to specify the Cloud Storage bucket for logs
+logsBucket: 'gs://application-deployment-471707-build-logs'
