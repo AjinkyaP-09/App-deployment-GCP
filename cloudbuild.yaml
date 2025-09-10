@@ -1,13 +1,13 @@
 steps:
-# 1. Build the Docker image
+# Step 1: Build the Docker image, tagging it with the short commit SHA
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/my-python-app-repo/my-app:$SHORT_SHA', '.'] # <-- MODIFIED
+  args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/my-python-app-repo/my-app:$SHORT_SHA', '.']
 
-# 2. Push the Docker image to Artifact Registry
+# Step 2: Push the Docker image to Google Artifact Registry
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/my-python-app-repo/my-app:$SHORT_SHA'] # <-- MODIFIED
+  args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/my-python-app-repo/my-app:$SHORT_SHA']
 
-# 3. Get GKE credentials
+# Step 3: Authenticate with the GKE cluster
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: gcloud
   args:
@@ -16,18 +16,27 @@ steps:
   - 'get-credentials'
   - 'my-gke-autopilot-cluster'
   - '--region'
-  - 'asia-south1' # <-- MODIFIED
+  - 'asia-south1'
 
-# 4. Update the image in the Kubernetes deployment
+# Step 4: Update the deployment to use the new Docker image
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: kubectl
   args:
   - 'set'
   - 'image'
   - 'deployment/python-app-deployment'
-  - 'python-app-container=asia-south1-docker.pkg.dev/$PROJECT_ID/my-python-app-repo/my-app:$SHORT_SHA' # <-- MODIFIED
+  - 'python-app-container=asia-south1-docker.pkg.dev/$PROJECT_ID/my-python-app-repo/my-app:$SHORT_SHA'
 
-# ... (rest of the file is the same) ...
+# Step 5: Apply the service manifest to ensure the service is configured
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: kubectl
+  args: ['apply', '-f', 'kubernetes/service.yaml']
 
+# This section lists the images that will be built by this pipeline
 images:
-- 'asia-south1-docker.pkg.dev/$PROJECT_ID/my-python-app-repo/my-app:$SHORT_SHA' # <-- MODIFIED
+- 'asia-south1-docker.pkg.dev/$PROJECT_ID/my-python-app-repo/my-app:$SHORT_SHA'
+
+# This option block fixes the logging error by specifying a GCS bucket
+options:
+  logging: GCS_ONLY
+  logsBucket: 'gs://application-deployment-471707-build-logs'
