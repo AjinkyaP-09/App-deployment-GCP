@@ -8,6 +8,6 @@ terraform {
 }
 
 provider "google" {
-  project = "application-deployment-471707" # <-- CHANGE THIS
-  region  = "asia-south1"         # <-- MODIFIED
+  project = var.gcp_project_id # <-- MODIFIED
+  region  = "asia-south1"
 }
