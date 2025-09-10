@@ -39,4 +39,4 @@ images:
 # This option block fixes the logging error by specifying a GCS bucket
 options:
   logging: GCS_ONLY
-  logsBucket: 'gs://application-deployment-471707-build-logs'
+  log_gcs_bucket: 'gs://application-deployment-471707-build-logs' # <-- CORRECTED
